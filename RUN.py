@@ -2,7 +2,12 @@
 
 import normal_game as ng
 import numpy as np
+import single_price_auction as spa
 
+SPA = spa.SinglePriceAuction(max_num_bids = 3, values = [1,1])
+SPA.print_game_size()
+SPA.print_utility()
+print(j)
 
 """Game. metric_type in ['euclidean', 'random', 'manual', 'diagonal'] """
 G = ng.Game([3,3], metric_type = 'euclidean', manual_metric_generators = 0)
