@@ -1,13 +1,11 @@
-import normal_game as ng
+import normal_game_FULL as ng
 import numpy as np
 import time
 
 start = time.time()
 
-print('init game..')
-G = ng.Game([2, 3, 4])
+G = ng.Game([2,3,4])
 u = [i for i in range(G.num_payoffs)]
-print('init payoff..')
 U = ng.Payoff(G, payoff_vector = u)
 
 end = time.time()

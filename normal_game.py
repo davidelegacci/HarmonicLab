@@ -46,6 +46,8 @@ class Payoff():
 
     def decompose_payoff(self):
 
+        print('start decomposition')
+
         u = Matrix(self.payoff_vector)
 
         PI = Matrix(self.game.normalization_projection)
@@ -56,13 +58,18 @@ class Payoff():
         delta_0_pinv = Matrix(self.game.coboundary_0_matrix_pinv)
         delta_0 = Matrix(self.game.coboundary_0_matrix)
 
+        print('this seems to be the bottleneck, big matrices multiplication')
+
         uN = u - PI * u
+        print('first multiplication done')
 
         uP = PWC_pinv * e * PWC * u
+        print('three more multiplications done, this is slowest step!')
 
         uH = u - uN - uP
 
         phi = delta_0_pinv * PWC * u
+        print('two more multiplications done, end.')
 
         return [uN, uP, uH, phi]
 
@@ -163,6 +170,7 @@ class Game():
         ######################################################################
         # Pseudo-Inverse and projection block
         # Moore-Penrose pseudo-inverse of pwc
+        print('start PINV block')
         self.pwc_matrix_pinv = npla.pinv(self.pwc_matrix)
 
         # PI: C0N --> C0N projection onto Euclidean orthogonal complement of ker(δ_0^N)
@@ -181,7 +189,7 @@ class Game():
         # The potential function itself is a function: A --> R
         # Ordered as basis of C0, e.g. in 2x3 case as [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3)]
         self.potential = np.matmul(self.coboundary_0_matrix_pinv, self.pwc_matrix)
-
+        print('end PINV block')
     #################################################################################################
     # BEGIN METHODS
     #################################################################################################
