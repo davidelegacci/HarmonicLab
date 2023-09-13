@@ -4,7 +4,7 @@ import utils
 import numpy as np
 import numpy.linalg as npla
 from itertools import combinations
-from sympy import Matrix
+# from sympy import Matrix
 
 class Player():
     """
@@ -48,34 +48,34 @@ class Payoff():
 
         print('start decomposition')
 
-        u = Matrix(self.payoff_vector)
+        u = self.payoff_vector
 
-        PI = Matrix(self.game.normalization_projection)
-        e = Matrix(self.game.exact_projection)
+        PI = self.game.normalization_projection
+        e = self.game.exact_projection
 
-        PWC_pinv = Matrix(self.game.pwc_matrix_pinv)
-        PWC = Matrix(self.game.pwc_matrix)
-        delta_0_pinv = Matrix(self.game.coboundary_0_matrix_pinv)
-        delta_0 = Matrix(self.game.coboundary_0_matrix)
+        PWC_pinv = self.game.pwc_matrix_pinv
+        PWC = self.game.pwc_matrix
+        delta_0_pinv = self.game.coboundary_0_matrix_pinv
+        delta_0 = self.game.coboundary_0_matrix
 
         print('this seems to be the bottleneck, big matrices multiplication')
 
-        uN = u - PI * u
+        uN = u - PI @ u
         print('first multiplication done')
 
-        uP = PWC_pinv * e * PWC * u
+        uP = PWC_pinv @ e @ PWC @ u
         print('three more multiplications done, this is slowest step!')
 
         uH = u - uN - uP
 
-        phi = delta_0_pinv * PWC * u
+        phi = delta_0_pinv @ PWC @ u
         print('two more multiplications done, end.')
 
         return [uN, uP, uH, phi]
 
     def round_list(self,L):
-        return [round(x,4) for x in L]
-        # return list(L)
+        # return [round(x,4) for x in L]
+        return list(L)
 
     def measure_potentialness(self):
         '''NB this measures the size of the decomposed components naively using the Euclidean metric regardless of the metrics actually used in the decomposition.
