@@ -13,7 +13,7 @@ import single_price_auction as spa
 
 # first price 2 players auction, value of player one fixed to 1, value of player 2 is parameter, 3 strategies each
 
-# general
+# general payoff
 
 # U = ng.Payoff(game = G, payoff_vector = u, value = v)
 
