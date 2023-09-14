@@ -188,7 +188,7 @@ class Game():
         # with utility in C0N and potential function in C0
         # The potential function itself is a function: A --> R
         # Ordered as basis of C0, e.g. in 2x3 case as [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3)]
-        self.potential = np.matmul(self.coboundary_0_matrix_pinv, self.pwc_matrix)
+        # self.potential = np.matmul(self.coboundary_0_matrix_pinv, self.pwc_matrix)
         print('end PINV block')
     #################################################################################################
     # BEGIN METHODS
