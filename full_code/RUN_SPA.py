@@ -1,6 +1,6 @@
 # Plug in any number of players and any number of strategies per player
 
-import normal_game as ng
+import normal_game_FULL as ng
 import numpy as np
 import single_price_auction as spa
 
