@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-
 def two_tuples_differ_for_one_element(tuple_one, tuple_two):
     L = len(tuple_one)
     assert L == len(tuple_two)
@@ -18,7 +16,6 @@ def coords_points(L):
         return values
 
     return make(*zip(*L))
-
 
 def are_same_edge(edge1, edge2):
     # edge = list of two points
