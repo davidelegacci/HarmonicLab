@@ -4,7 +4,7 @@ import time
 
 start = time.time()
 
-G = ng.Game([2, 5, 3])
+G = ng.Game([2,2,2])
 u = [i for i in range(G.num_payoffs)]
 U = ng.Payoff(G, payoff_vector = u)
 

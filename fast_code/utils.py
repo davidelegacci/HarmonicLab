@@ -48,3 +48,17 @@ def red(text):
     COLOR = '\033[91m'
     END = '\033[0m'
     return f'{COLOR}{text}{END}'
+
+
+def plot_potentialness(file_path, fixed_value):
+    with open(file_path) as f:
+        data = f.readlines()
+    points = [p[1:-2].split(", ") for p in data]
+    points = [(float(p[0]), float(p[1]))for p in points]
+    plt.plot(*zip(*points), 'ro')
+    plt.xlim(0,1)
+    plt.ylim(0,1)
+    plt.ylabel('Value')
+    plt.xlabel('potentialness')
+    plt.title(f'Fixed value = {fixed_value}')
+    plt.show()

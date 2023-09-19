@@ -5,6 +5,9 @@ import numpy as np
 import numpy.linalg as npla
 from itertools import combinations
 # from sympy import Matrix
+import matplotlib.pyplot as plt
+
+
 
 class Player():
     """
@@ -20,11 +23,13 @@ class Player():
 
 class Payoff():
     """game is Game instance"""
-    def __init__(self, game, payoff_vector, value = 1):
+    def __init__(self, game, payoff_vector, value, pot_file_path):
         """Either pass payoff vector as list, or generate random
         Integer payoff True by default; set false payoff can be float"""
 
         self.game = game
+
+        self.pot_file_path = pot_file_path
 
         # Value of 1-parameter auction game with 2 players for SLMath research
         self.value = value
@@ -37,7 +42,7 @@ class Payoff():
         # self.u_strategic = self.uP + self.uH
 
         self.potentialness = self.measure_potentialness()
-        # self.write_potentialness()
+        self.write_potentialness()
         self.verbose_payoff()
 
     #################################################################################################
@@ -46,7 +51,7 @@ class Payoff():
 
     def decompose_payoff(self):
 
-        print('start decomposition')
+        # print('start decomposition')
 
         u = self.payoff_vector
 
@@ -58,18 +63,18 @@ class Payoff():
         delta_0_pinv = self.game.coboundary_0_matrix_pinv
         delta_0 = self.game.coboundary_0_matrix
 
-        print('this seems to be the bottleneck, big matrices multiplication')
+        # print('this seems to be the bottleneck, big matrices multiplication')
 
         uN = u - PI @ u
-        print('first multiplication done')
+        # print('first multiplication done')
 
         uP = PWC_pinv @ e @ PWC @ u
-        print('three more multiplications done, this is slowest step!')
+        # print('three more multiplications done, this is slowest step!')
 
         uH = u - uN - uP
 
         phi = delta_0_pinv @ PWC @ u
-        print('two more multiplications done, end.')
+        # print('two more multiplications done, end.')
 
         return [uN, uP, uH, phi]
 
@@ -92,11 +97,13 @@ class Payoff():
         return potentialness
 
     def write_potentialness(self):
-        with open('potentialness.txt', 'a') as the_file:
+        with open(self.pot_file_path, 'a') as the_file:
             the_file.write(f'{[self.potentialness, self.value]}\n')
+
 
     def verbose_payoff(self):
         print('\n-------------------- DECOMPOSITION  -----------------------')
+        print(f'Value = {self.value}')
         print(f'u = {self.payoff_vector}')
         print()
         print(f'uN = {self.round_list(self.uN)}')
@@ -106,6 +113,8 @@ class Payoff():
         print(f'potential of uP = {self.round_list(self.potential)}')
         print('\n-------------------- SLMATH WORK ON DECOMPOSITION  -----------------------')
         print(f'Potentialness = {self.potentialness}')
+        print('--------------------------------------\n')
+
 
 class Game():
     def __init__(self, num_strategies_for_player):
@@ -170,7 +179,7 @@ class Game():
         ######################################################################
         # Pseudo-Inverse and projection block
         # Moore-Penrose pseudo-inverse of pwc
-        print('start PINV block')
+        # print('start PINV block')
         self.pwc_matrix_pinv = npla.pinv(self.pwc_matrix)
 
         # PI: C0N --> C0N projection onto Euclidean orthogonal complement of ker(δ_0^N)
@@ -189,7 +198,9 @@ class Game():
         # The potential function itself is a function: A --> R
         # Ordered as basis of C0, e.g. in 2x3 case as [(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3)]
         # self.potential = np.matmul(self.coboundary_0_matrix_pinv, self.pwc_matrix)
-        print('end PINV block')
+        # print('end PINV block')
+
+        self.verbose_game()
     #################################################################################################
     # BEGIN METHODS
     #################################################################################################
@@ -259,4 +270,7 @@ class Game():
     def sort_elementary_chains(self,list_of_simplices):
         for simplex in list_of_simplices:
             simplex.sort()
+
+    def verbose_game(self):
+        print(f'\nGAME: {self.num_strategies_for_player}')
 
