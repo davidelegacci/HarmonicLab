@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
 def two_tuples_differ_for_one_element(tuple_one, tuple_two):
     L = len(tuple_one)
@@ -50,15 +51,56 @@ def red(text):
     return f'{COLOR}{text}{END}'
 
 
-def plot_potentialness(file_path, fixed_value):
-    with open(file_path) as f:
-        data = f.readlines()
-    points = [p[1:-2].split(", ") for p in data]
-    points = [(float(p[0]), float(p[1]))for p in points]
-    plt.plot(*zip(*points), 'ro')
+# def plot_potentialness_txt(file_path, fixed_value, n_discr, n_values):
+#     with open(file_path) as f:
+#         data = f.readlines()
+
+#     cleaned_data = [p[1:-2].split(", ") for p in data]
+#     points = [(float(p[0]), float(p[1]))for p in cleaned_data]
+
+#     plt.plot(*zip(*points), 'ro')
+#     plt.xlim(0,1)
+#     plt.ylim(0,1)
+#     plt.ylabel('Value')
+#     plt.xlabel('potentialness')
+#     plt.title(f'Fixed value = {fixed_value}, n_discr_bids = {n_discr}, n_values = {n_values}')
+#     plt.show()
+
+def plot_value_potentialness_FPSB(file_path, fixed_value, n_discr, n_values):
+
+    with open(file_path) as csvfile:
+        reader = csv.reader(csvfile, delimiter=';')
+        data = list(reader)
+        print(data)
+
+    # now data is a list of "points", each string
+
+    points = [(float(p[0]), float(p[1]))for p in data]
+    x,y = coords_points(points)
+    skeletons = [p[2] for p in data]
+
+    fig, ax = plt.subplots()
+   
+    scatter = ax.scatter(x,y)
+
+
+    # equivalent to skel = skeletons[i] for i in range(len(skeletons))
+    for i, skel in enumerate(skeletons):
+        if i == 0 or (i > 0 and skel != skeletons[i-1]):
+            ax.annotate(skel, (x[i], y[i]))
+        
+
+
+
     plt.xlim(0,1)
     plt.ylim(0,1)
     plt.ylabel('Value')
     plt.xlabel('potentialness')
-    plt.title(f'Fixed value = {fixed_value}')
+    plt.title(f'Fixed value = {fixed_value}, n_discr_bids = {n_discr}, n_values = {n_values}')
     plt.show()
+
+
+
+
+
+

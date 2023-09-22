@@ -6,6 +6,7 @@ import numpy.linalg as npla
 from itertools import combinations
 # from sympy import Matrix
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 
@@ -23,7 +24,7 @@ class Player():
 
 class Payoff():
     """game is Game instance"""
-    def __init__(self, game, payoff_vector, value, pot_file_path):
+    def __init__(self, game, payoff_vector, auction = False, value = 0, pot_file_path = 0):
         """Either pass payoff vector as list, or generate random
         Integer payoff True by default; set false payoff can be float"""
 
@@ -42,8 +43,11 @@ class Payoff():
         # self.u_strategic = self.uP + self.uH
 
         self.potentialness = self.measure_potentialness()
-        self.write_potentialness()
+
+        if auction:
+            self.write_value_potentialness_FPSB()
         self.verbose_payoff()
+        
 
     #################################################################################################
     # BEGIN PAYOFF METHODS
@@ -91,19 +95,25 @@ class Payoff():
         If this number is 0 the game is purely harmonic
         If this number is 1 the game is purely potential
         '''
-        uP_norm = ((self.uP.T * self.uP)[0,0])**0.5
-        uH_norm = ((self.uH.T * self.uH)[0,0])**0.5
+        uP_norm = float(((self.uP @ self.uP.T)[0][0]))**0.5
+        uH_norm = float(((self.uH @ self.uH.T)[0][0]))**0.5
         potentialness = uP_norm / (uP_norm + uH_norm)
         return potentialness
 
-    def write_potentialness(self):
-        with open(self.pot_file_path, 'a') as the_file:
-            the_file.write(f'{[self.potentialness, self.value]}\n')
+    # def write_potentialness_txt(self):
+    #     with open(self.pot_file_path, 'a') as the_file:
+    #         the_file.write(f'{[self.potentialness, self.value]}\n')
+
+
+    def write_value_potentialness_FPSB(self):
+
+        data = [[self.potentialness, self.value, self.game.num_strategies_for_player]]
+        df = pd.DataFrame(data)
+        df.to_csv(self.pot_file_path, header = False, index = False, mode='a', sep = ';')
 
 
     def verbose_payoff(self):
         print('\n-------------------- DECOMPOSITION  -----------------------')
-        print(f'Value = {self.value}')
         print(f'u = {self.payoff_vector}')
         print()
         print(f'uN = {self.round_list(self.uN)}')
