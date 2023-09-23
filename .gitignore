@@ -4,3 +4,6 @@ __pycache__/
 interesting_cases/
 candogan_results/
 *.csv
+*.pdf
+*.jpg
+*.png
