@@ -32,8 +32,6 @@ class Payoff():
         self.game = game
 
 
-
-
         self.payoff_vector = payoff_vector
 
         self.uN, self.uP, self.uH , self.potential = self.decompose_payoff()

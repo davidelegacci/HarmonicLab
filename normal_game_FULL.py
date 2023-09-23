@@ -68,7 +68,7 @@ class Payoff():
         self.unilateral_deviations_dict = self.make_unilateral_deviations_dict()
         self.unilateral_deviations_dict = self.fix_edges_orientation()
 
-        self.pure_NE = pgm.find_pure_NE(self)
+        self.pure_NE = self.find_pure_NE()
 
         self.uN, self.uP, self.uH , self.potential = self.decompose_payoff()
 
@@ -203,6 +203,15 @@ class Payoff():
         except: print('Nash support enumeration failed')
 
         return [NE_1, NE_2, NE_3]
+
+    def find_pure_NE(self):
+        '''self is self class instance'''
+        pure_NE = []
+        receiving_nodes = [edge[-1] for edge in list(self.unilateral_deviations_dict.keys())]
+        for a in self.game.nodes:
+            if receiving_nodes.count(a) == self.game.num_edges_per_node:
+                pure_NE.append(a)
+        return pure_NE
 
     def print_NE(self):
         if self.game.num_players != 2:
