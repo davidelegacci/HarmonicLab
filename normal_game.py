@@ -6,7 +6,8 @@ import numpy.linalg as npla
 from itertools import combinations
 # from sympy import Matrix
 import matplotlib.pyplot as plt
-import pandas as pd
+
+import common_methods as cm
 
 
 
@@ -24,16 +25,14 @@ class Player():
 
 class Payoff():
     """game is Game instance"""
-    def __init__(self, game, payoff_vector, auction = False, value = 0, pot_file_path = 0):
+    def __init__(self, game, payoff_vector, plot_auction_potentialness = False, value = 0, pot_file_path = 0):
         """Either pass payoff vector as list, or generate random
         Integer payoff True by default; set false payoff can be float"""
 
         self.game = game
 
-        self.pot_file_path = pot_file_path
 
-        # Value of 1-parameter auction game with 2 players for SLMath research
-        self.value = value
+
 
         self.payoff_vector = payoff_vector
 
@@ -44,8 +43,13 @@ class Payoff():
 
         self.potentialness = self.measure_potentialness()
 
-        if auction:
-            self.write_value_potentialness_FPSB()
+        if plot_auction_potentialness:
+            # Value of 1-parameter plot_auction_potentialness game with 2 players for SLMath research
+            self.value = value
+            self.pot_file_path = pot_file_path
+            cm.write_value_potentialness_FPSB(self)
+
+
         self.verbose_payoff()
         
 
@@ -100,16 +104,12 @@ class Payoff():
         potentialness = uP_norm / (uP_norm + uH_norm)
         return potentialness
 
-    # def write_potentialness_txt(self):
-    #     with open(self.pot_file_path, 'a') as the_file:
-    #         the_file.write(f'{[self.potentialness, self.value]}\n')
 
+    # def write_value_potentialness_FPSB(self):
 
-    def write_value_potentialness_FPSB(self):
-
-        data = [[self.potentialness, self.value, self.game.num_strategies_for_player]]
-        df = pd.DataFrame(data)
-        df.to_csv(self.pot_file_path, header = False, index = False, mode='a', sep = ';')
+    #     data = [[self.potentialness, self.value, self.game.num_strategies_for_player]]
+    #     df = pd.DataFrame(data)
+    #     df.to_csv(self.pot_file_path, header = False, index = False, mode='a', sep = ';')
 
 
     def verbose_payoff(self):
