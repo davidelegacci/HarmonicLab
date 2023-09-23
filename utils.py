@@ -89,15 +89,20 @@ def plot_value_potentialness_FPSB(file_path, fixed_value, n_discr, n_values):
         if i == 0 or (i > 0 and skel != skeletons[i-1]):
             ax.annotate(skel, (x[i], y[i]))
         
-
-
-
     plt.xlim(0,1)
     plt.ylim(0,1)
     plt.ylabel('Value')
     plt.xlabel('potentialness')
     plt.title(f'Fixed value = {fixed_value}, n_discr_bids = {n_discr}, n_values = {n_values}')
     plt.show()
+
+
+def make_alpha_game(alpha, uP, uH):
+    return alpha * np.array(uP) + (1 - alpha) * np.array(uH)
+
+
+
+
 
 
 

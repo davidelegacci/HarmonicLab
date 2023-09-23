@@ -12,7 +12,7 @@ from tqdm import tqdm
 ############################################################
 # SINGLE AUCTION
 ############################################################
-SPA = fpa.SinglePriceAuction(n_discr = 3, values = [1,1])
+SPA = fpa.SinglePriceAuction(n_discr = 6, values = [1,1])
 G = ng.Game(SPA.skeleton)
 U = ng.Payoff(game = G, payoff_vector = SPA.utility)
 ############################################################

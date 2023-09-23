@@ -84,9 +84,12 @@ class Payoff():
 
         return [uN, uP, uH, phi]
 
+    def round_matrix(self,L):
+        L =  (L.flatten()).tolist()[0]
+        return [round(x,4) for x in L]
+
     def round_list(self,L):
-        # return [round(x,4) for x in L]
-        return list(L)
+        return [round(x,4) for x in L]
 
     def measure_potentialness(self):
         '''NB this measures the size of the decomposed components naively using the Euclidean metric regardless of the metrics actually used in the decomposition.
@@ -112,13 +115,13 @@ class Payoff():
 
     def verbose_payoff(self):
         print('\n-------------------- DECOMPOSITION  -----------------------')
-        print(f'u = {self.payoff_vector}')
+        print(f'u = {self.round_list(list(self.payoff_vector))}')
         print()
-        print(f'uN = {self.round_list(self.uN)}')
-        print(f'uP = {self.round_list(self.uP)}')
-        print(f'uH = {self.round_list(self.uH)}')
+        print(f'uN = {self.round_matrix(self.uN)}')
+        print(f'uP = {self.round_matrix(self.uP)}')
+        print(f'uH = {self.round_matrix(self.uH)}')
         print()
-        print(f'potential of uP = {self.round_list(self.potential)}')
+        print(f'potential of uP = {self.round_matrix(self.potential)}')
         print('\n-------------------- SLMATH WORK ON DECOMPOSITION  -----------------------')
         print(f'Potentialness = {self.potentialness}')
         print('--------------------------------------\n')

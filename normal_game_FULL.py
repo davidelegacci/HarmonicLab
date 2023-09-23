@@ -17,6 +17,7 @@ import metric
 # specific for bimatrix games
 import nashpy as nash
 
+
 '''
 Draws response graph of normal form game and computes relevant homomorpisms (δ_0, δ_1, δ_0^N) and their properties
 Performs decomposition of game into non-strategic, potential and harmonic components according to Candogan et al.
@@ -44,13 +45,13 @@ class Payoff():
     def __init__(self, game, payoff_vector = 0, plot_auction_potentialness = False, value = 0, pot_file_path = 0):
         """Either pass payoff vector as list, or generate random
         Integer payoff True by default; set false payoff can be float"""
-
+        print('Init Payoff...')
         self.game = game
 
-        if payoff_vector == 0:
-            # generates sequential [0, 1, 2, ...]
-            # payoff_vector = [i for i in range(self.game.num_payoffs)]
-            payoff_vector = np.random.randint(-5, 5+1, int(self.game.num_payoffs))
+        # if payoff_vector == 0:
+        #     # generates sequential [0, 1, 2, ...]
+        #     # payoff_vector = [i for i in range(self.game.num_payoffs)]
+        #     payoff_vector = np.random.randint(-5, 5+1, int(self.game.num_payoffs))
 
         assert(len(payoff_vector) == self.game.num_payoffs)
 
@@ -62,14 +63,16 @@ class Payoff():
         self.assert_payoff_consistency()
         
         self.bimatrix_form = self.make_bimatrix_form()
-        self.NE = self.find_NE()
-       
+        # self.NE = self.find_NE()
 
+        print('start unil dev...')
         self.unilateral_deviations_dict = self.make_unilateral_deviations_dict()
         self.unilateral_deviations_dict = self.fix_edges_orientation()
 
+        print('start pure NE...')
         self.pure_NE = self.find_pure_NE()
 
+        print('start decomposition...')
         self.uN, self.uP, self.uH , self.potential = self.decompose_payoff()
 
         # equivalent game removing payoff component
@@ -84,7 +87,8 @@ class Payoff():
             pgm.write_value_potentialness_FPSB(self)
 
 
-        self.verbose_payoff()
+        # self.verbose_payoff()
+
 
 
     def make_payoff_dict(self):
@@ -207,11 +211,23 @@ class Payoff():
     def find_pure_NE(self):
         '''self is self class instance'''
         pure_NE = []
-        receiving_nodes = [edge[-1] for edge in list(self.unilateral_deviations_dict.keys())]
+        pure_NE_matrix = []
+        zero_edges = [edge for edge in self.unilateral_deviations_dict.keys() if self.unilateral_deviations_dict[edge] == 0 ]
+        receiving_nodes = [edge[-1] for edge in self.unilateral_deviations_dict.keys()] + [edge[0] for edge in zero_edges]
         for a in self.game.nodes:
             if receiving_nodes.count(a) == self.game.num_edges_per_node:
                 pure_NE.append(a)
-        return pure_NE
+                pure_NE_matrix.append(1)
+            else:
+                pure_NE_matrix.append(0)
+
+        if self.game.num_players == 2:
+            return pure_NE, np.array(pure_NE_matrix).reshape(self.game.num_strategies_for_player)
+        else:
+            return pure_NE
+
+
+
 
     def print_NE(self):
         if self.game.num_players != 2:
@@ -293,33 +309,39 @@ class Payoff():
             a = 'Payoff decomposition not implemented yet for non-euclidean case'
             return a, 0, 0, 0
 
-        u = Matrix(self.payoff_vector)
+        u = self.payoff_vector
 
-        PI = Matrix(self.game.normalization_projection)
-        e = Matrix(self.game.exact_projection)
+        PI = self.game.normalization_projection
+        e = self.game.exact_projection
 
-        PWC_pinv = Matrix(self.game.pwc_matrix_pinv)
-        PWC = Matrix(self.game.pwc_matrix)
-        delta_0_pinv = Matrix(self.game.coboundary_0_matrix_pinv)
-        delta_0 = Matrix(self.game.coboundary_0_matrix)
+        PWC_pinv = self.game.pwc_matrix_pinv
+        PWC = self.game.pwc_matrix
+        delta_0_pinv = self.game.coboundary_0_matrix_pinv
+        delta_0 = self.game.coboundary_0_matrix
 
-        uN = u - PI * u
+        uN = u - PI @ u
 
-        uP = PWC_pinv * e * PWC * u
+        uP = PWC_pinv @ e @ PWC @ u
 
         uH = u - uN - uP
 
-        phi = delta_0_pinv * PWC * u
+        phi = delta_0_pinv @ PWC @ u
 
 
         # Check that PWC(uP) = δ_0(phi)
-        assert( utils.is_zero((PWC * uP) - ( delta_0 * phi )) )
+        # assert( utils.is_zero((PWC @ uP) - ( delta_0 @ phi )) )
 
         return [uN, uP, uH, phi]
 
-    def round_list(self,L):
+
+    def round_matrix(self,L):
+        return L
+        L =  (L.flatten()).tolist()[0]
         return [round(x,4) for x in L]
-        # return list(L)
+
+    def round_list(self,L):
+        return L
+        return [round(x,4) for x in L]
 
     def measure_potentialness(self):
         '''NB this measures the size of the decomposed components naively using the Euclidean metric regardless of the metrics actually used in the decomposition.
@@ -331,8 +353,8 @@ class Payoff():
         If this number is 0 the game is purely harmonic
         If this number is 1 the game is purely potential
         '''
-        uP_norm = ((self.uP.T * self.uP)[0,0])**0.5
-        uH_norm = ((self.uH.T * self.uH)[0,0])**0.5
+        uP_norm = float(((self.uP @ self.uP.T)[0][0]))**0.5
+        uH_norm = float(((self.uH @ self.uH.T)[0][0]))**0.5
         potentialness = uP_norm / (uP_norm + uH_norm)
         return potentialness
 
@@ -563,42 +585,44 @@ class Payoff():
     def verbose_payoff(self):
         print('\n------------------------------------------------------------')
         print('\n-------------------- PAYOFF VERBOSE  -----------------------')
-        print('Payoff function')
-        pprint.pprint(self.payoff_function)
-        print('\nIndividual payoff')
-        pprint.pprint(self.payoff_dict)
-        print(utils.orange(f'\nIs harmonic (in N+H) wrt current metric: {self.is_harmonic()}'))
-        print(utils.orange(f'Is harmonic (in N+H) wrt euclidean metric: {self.is_euclidean_harmonic()}'))
-        print('Bimatrix form\n')
-        print(self.bimatrix_form)
+        # print('Payoff function')
+        # pprint.pprint(self.payoff_function)
+        # print('\nIndividual payoff')
+        # pprint.pprint(self.payoff_dict)
+        # print(utils.orange(f'\nIs harmonic (in N+H) wrt current metric: {self.is_harmonic()}'))
+        # print(utils.orange(f'Is harmonic (in N+H) wrt euclidean metric: {self.is_euclidean_harmonic()}'))
+        # print('Bimatrix form\n')
+        # print(self.bimatrix_form)
 
-        if self.game.num_players == 2:
-            A, B = self.bimatrix_form
-            print(sp.latex(sp.Matrix(A)))
-            print(sp.latex(sp.Matrix(B)))
+        # if self.game.num_players == 2:
+        #     A, B = self.bimatrix_form
+        #     print(sp.latex(sp.Matrix(A)))
+        #     print(sp.latex(sp.Matrix(B)))
 
-        print('\n-------------------- UNILATERAL DEVIATIONS  -----------------------')
-        pprint.pprint(self.unilateral_deviations_dict)
-        print('\n-------------------- DECOMPOSITION  -----------------------')
-        print(f'u = {self.payoff_vector}')
-        print()
-        print(f'uN = {self.round_list(self.uN)}')
-        print(f'uP = {self.round_list(self.uP)}')
-        print(f'uH = {self.round_list(self.uH)}')
-        print()
-        print(f'potential of uP = {self.round_list(self.potential)}')
-        print('\n-------------------- SLMATH WORK ON DECOMPOSITION  -----------------------')
+        # print('\n-------------------- UNILATERAL DEVIATIONS  -----------------------')
+        # pprint.pprint(self.unilateral_deviations_dict)
+        # print('\n-------------------- DECOMPOSITION  -----------------------')
+        # print(f'u = {self.round_list(list(self.payoff_vector))}')
+        # print()
+        # print(f'uN = {self.round_matrix(self.uN)}')
+        # print(f'uP = {self.round_matrix(self.uP)}')
+        # print(f'uH = {self.round_matrix(self.uH)}')
+        # print()
+        # print(f'potential of uP = {self.round_list(self.potential)}')
+        # print('\n-------------------- SLMATH WORK ON DECOMPOSITION  -----------------------')
         print(f'Potentialness = {self.potentialness}')
-        print('\n-------------------- LATEX 2X3 GRAPH  -----------------------')
-        self.make_latex_graph_2x3_code(potential = LATEX_PLOT_POTENTIAL)
-        self.make_latex_graph_2x2_code(potential = LATEX_PLOT_POTENTIAL)
+        # print('\n-------------------- LATEX 2X3 GRAPH  -----------------------')
+        # self.make_latex_graph_2x3_code(potential = LATEX_PLOT_POTENTIAL)
+        # self.make_latex_graph_2x2_code(potential = LATEX_PLOT_POTENTIAL)
         print('\n-------------------- NASH EQUILIBRIA  -----------------------')
         try:
             self.print_NE()
         except:
             print('Nash equilibria failed')
         print('\n------Pure NE------')
+        # print(self.game.nodes)
         print(self.pure_NE)
+
 
               
 # If FORMAT == 'x' the variables that appear in the parametric solution of the harmonic system are x1, x2, ..., xAN
@@ -623,7 +647,7 @@ class Game():
         ######################################################################
         # GAME
         ######################################################################
-        
+        print('Init game...')
         self.num_strategies_for_player = num_strategies_for_player
         
         # Number of players
@@ -670,7 +694,7 @@ class Game():
         ######################################################################
         # RESPONSE GRAPH
         ######################################################################
-
+        print('Start response graph..')
         # Count elements of response graph
         self.num_nodes = self.num_strategy_profiles
         self.num_edges_per_node = int(sum(self.num_strategies_for_player) - self.num_players)
@@ -729,7 +753,7 @@ class Game():
         ######################################################################
         # PWC MATRIX C0N --> C1
         ######################################################################
-
+        print('D matrix...')
         # Establish wether pwc is surjective from theory. Surjective iff all players have 1 or 2 strategies. 
         self.pwc_is_surjective = True
         for ai in self.num_strategies_for_player:
@@ -744,12 +768,12 @@ class Game():
         self.pwc_matrix_sympy = Matrix(self.pwc_matrix)
 
         # Kernel of pwc matrix = basis of N
-        self.basis_nonstrategic_games = self.pwc_matrix_sympy.nullspace()
+        # self.basis_nonstrategic_games = self.pwc_matrix_sympy.nullspace()
 
         self.dim_ker_pwc_theory = int(self.sum_prod(self.num_strategies_for_player))
         self.dim_im_pwc_theory = int(self.num_payoffs - self.dim_ker_pwc_theory)
 
-        assert(self.dim_ker_pwc_theory == len(self.basis_nonstrategic_games))
+        # assert(self.dim_ker_pwc_theory == len(self.basis_nonstrategic_games))
 
         # Check whether pwc is surjective numerically for consistency. Surjective iff full rank. 
         self.dim_im_pwc_numerical = npla.matrix_rank(self.pwc_matrix)
@@ -763,37 +787,38 @@ class Game():
         ######################################################################
         # Hodge decomposition in C1
         ######################################################################
+        print('Cliques...')
         self.dim_exact = self.num_nodes - 1
 
         # Count three cliques iff there are three cliques, i.e. iff at least one player has 3 strategies or more iff pwc not surjective
         self.there_are_3_cliques = not self.pwc_is_surjective
 
-        if self.there_are_3_cliques:
-            # Get dim closed by computing explicitely the matrix of δ_1 and finding the dimension of its kernel
+        # if self.there_are_3_cliques:
+        #     # Get dim closed by computing explicitely the matrix of δ_1 and finding the dimension of its kernel
 
-            # get 3-cliques algorithmically
-            self.three_cliques = self.make_cliques(self.networkx_graph, 3)
+        #     # get 3-cliques algorithmically
+        #     self.three_cliques = self.make_cliques(self.networkx_graph, 3)
 
-            # Sort basis elements; necessary to build matrix, so that basis elements match
-            # self.sort_oriented_simplices(self.edges)
-            self.sort_oriented_simplices(self.three_cliques)
+        #     # Sort basis elements; necessary to build matrix, so that basis elements match
+        #     # self.sort_oriented_simplices(self.edges)
+        #     self.sort_oriented_simplices(self.three_cliques)
 
-            # Count three-cliques
-            self.algo_num_three_cliques = len(self.three_cliques)
+        #     # Count three-cliques
+        #     self.algo_num_three_cliques = len(self.three_cliques)
 
-            # Sometimes algorithm fails and includes duplicates; get rid of them
-            if not self.num_three_cliques == self.algo_num_three_cliques:
-                self.three_cliques = self.kill_duplicates(self.three_cliques)
-                self.algo_num_three_cliques = len(self.three_cliques)
-                assert self.algo_num_three_cliques == self.num_three_cliques            
+        #     # Sometimes algorithm fails and includes duplicates; get rid of them
+        #     if not self.num_three_cliques == self.algo_num_three_cliques:
+        #         self.three_cliques = self.kill_duplicates(self.three_cliques)
+        #         self.algo_num_three_cliques = len(self.three_cliques)
+        #         assert self.algo_num_three_cliques == self.num_three_cliques            
 
             ######################################################################
             # Matrix of δ_1: C^1 --> C^2
             ######################################################################
-            self.coboundary_1_matrix = self.make_coboundary_1_matrix()
-            self.coboundary_1_matrix_rank = npla.matrix_rank(self.coboundary_1_matrix)
-            self.coboundary_1_matrix_kernel = self.num_edges - self.coboundary_1_matrix_rank
-            self.dim_closed = self.coboundary_1_matrix_kernel
+            # self.coboundary_1_matrix = self.make_coboundary_1_matrix()
+            # self.coboundary_1_matrix_rank = npla.matrix_rank(self.coboundary_1_matrix)
+            # self.coboundary_1_matrix_kernel = self.num_edges - self.coboundary_1_matrix_rank
+            # self.dim_closed = self.coboundary_1_matrix_kernel
 
 
         if not self.there_are_3_cliques:
@@ -803,7 +828,8 @@ class Game():
         # Dim harmonic = ANSATZ dim H
         # If pwc is surjectiye, dim harmonic is known in closed form as dim C1
         # If pwc is not surjective, dim harmononic is computed explicitely, ketting dim closed as dim ker δ_1
-        self.dim_harmonic = int(self.dim_closed - self.dim_exact)
+        
+        # self.dim_harmonic = int(self.dim_closed - self.dim_exact)
 
         ######################################################################
         # Hodge decomposition in C0N
@@ -813,7 +839,7 @@ class Game():
         self.dim_N = self.dim_ker_pwc_theory
 
         # Here dim_H is known in closed form, since dim C0N, dimP and dimN are known in closed for
-        assert(self.dim_harmonic == self.dim_H)
+        # assert(self.dim_harmonic == self.dim_H)
 
         ######################################################################
         # MATRIX boundary 1 map, dual of coboundary 0 map
@@ -830,6 +856,7 @@ class Game():
 
         ######################################################################
         # Pseudo-Inverse block
+        print('PINV..')
 
         if self.metric_type == 'euclidean':
 
@@ -865,6 +892,7 @@ class Game():
         ######################################################################
         # HARMONIC MATRIX
         ######################################################################
+        print('Multiply stuff..')
 
         # Harmonic matrix EUCLIDEAN = del_1 \circ pwc: C0N --> C1 --> C0
 
@@ -897,7 +925,7 @@ class Game():
         # self.harmonic_payoff = self.make_random_harmonic_payoff_float()
         self.random_harmonic_payoff = self.make_random_harmonic_payoff_int()
 
-        self.verbose_game()
+        # self.verbose_game()
 
     #################################################################################################
     # BEGIN METHODS
@@ -1160,9 +1188,9 @@ class Game():
         
         print('\n-------------------- C1  -----------------------')
         print(f'dim(C^1) = {self.dim_C1}')
-        print(f'dim ker δ_1 = dim closed = {self.dim_closed}')
+        # print(f'dim ker δ_1 = dim closed = {self.dim_closed}')
         print('--------------------')
-        print(f'codim closed = {self.dim_C1 - self.dim_closed}')
+        # print(f'codim closed = {self.dim_C1 - self.dim_closed}')
         print(f'dim exact = {self.dim_exact}')
         print(f'dim harmonic = {self.dim_harmonic}')
 

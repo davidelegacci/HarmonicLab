@@ -10,3 +10,4 @@ class PayoffGlobalMethods():
         df = pd.DataFrame(data)
         df.to_csv(Payoff.pot_file_path, header = False, index = False, mode='a', sep = ';')
 
+
