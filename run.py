@@ -1,6 +1,6 @@
 ############################################################
-# import normal_game_FULL	 as ng
-import normal_game	 as ng
+import normal_game_FULL	 as ng
+# import normal_game	 as ng
 ############################################################
 
 

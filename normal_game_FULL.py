@@ -1,7 +1,7 @@
 import math as mt
 import itertools
 import utils
-import common_methods as cm
+from common_methods import PayoffGlobalMethods as pgm
 import numpy as np
 import numpy.linalg as npla
 import matplotlib.pyplot as plt
@@ -68,7 +68,7 @@ class Payoff():
         self.unilateral_deviations_dict = self.make_unilateral_deviations_dict()
         self.unilateral_deviations_dict = self.fix_edges_orientation()
 
-        self.pure_NE = cm.find_pure_NE(self)
+        self.pure_NE = pgm.find_pure_NE(self)
 
         self.uN, self.uP, self.uH , self.potential = self.decompose_payoff()
 
@@ -81,7 +81,7 @@ class Payoff():
             # Value of 1-parameter plot_auction_potentialness game with 2 players for SLMath research
             self.value = value
             self.pot_file_path = pot_file_path
-            cm.write_value_potentialness_FPSB(self)
+            pgm.write_value_potentialness_FPSB(self)
 
 
         self.verbose_payoff()

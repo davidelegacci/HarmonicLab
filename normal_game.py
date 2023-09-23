@@ -7,7 +7,7 @@ from itertools import combinations
 # from sympy import Matrix
 import matplotlib.pyplot as plt
 
-import common_methods as cm
+from common_methods import PayoffGlobalMethods as pgm
 
 
 
@@ -47,7 +47,7 @@ class Payoff():
             # Value of 1-parameter plot_auction_potentialness game with 2 players for SLMath research
             self.value = value
             self.pot_file_path = pot_file_path
-            cm.write_value_potentialness_FPSB(self)
+            pgm.write_value_potentialness_FPSB(self)
 
 
         self.verbose_payoff()
