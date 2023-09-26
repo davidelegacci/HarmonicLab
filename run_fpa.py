@@ -1,42 +1,58 @@
 ############################################################
-import normal_game_FULL	 as ng
-# import normal_game	 as ng
+import normal_game	 as ng
 ############################################################
 import numpy as np
 import first_price_auction as fpa
 import time
 import utils
 from tqdm import tqdm
+import os
+import yaml
 
+
+with open('config.yml', 'r') as file:
+	config = yaml.safe_load(file)
 
 ############################################################
 # SINGLE AUCTION
 ############################################################
-SPA = fpa.SinglePriceAuction(n_discr = 6, values = [1,1])
-G = ng.Game(SPA.skeleton)
-U = ng.Payoff(game = G, payoff_vector = SPA.utility)
+# start = time.time()
+# SPA = fpa.SinglePriceAuction(n_discr = 5, values = [1,1])
+# G = ng.Game(SPA.skeleton)
+# U = ng.PayoffPotValue(game = G, payoff_vector = SPA.utility, **config)
+# end = time.time()
+# print("The time of execution of above program is :",
+# 	(end-start) * 10**3, "ms")
+
 ############################################################
 
 ############################################################
 # MULTIPLE AUCTIONS VARYING VALUE AND PLOTTING
 ############################################################
 
-# FIXED_VALUE = 0.5
-# N_DISCR = 5
 
-# LOW_VALUE = 0
-# HIGH_VALUE = 1
-# N_VALUES = 5
+# Discretization
+N_DISCR = 5
 
-# NOW = time.time()
-# POT_FILE_PATH = f'potentialness/{NOW}_potentialness.csv'
+# Running value
+LOW_VALUE = 0
+HIGH_VALUE = 1
+N_VALUES = 10
 
-# for value in tqdm(np.linspace(LOW_VALUE, HIGH_VALUE, N_VALUES)):
-# 	SPA = fpa.SinglePriceAuction(n_discr = N_DISCR, values = [FIXED_VALUE,value])
-# 	G = ng.Game(SPA.skeleton)
-# 	U = ng.Payoff(game = G, payoff_vector = SPA.utility, plot_auction_potentialness = True, value = value, pot_file_path = POT_FILE_PATH)
+NOW = time.time()
 
-# utils.plot_value_potentialness_FPSB(POT_FILE_PATH, FIXED_VALUE, N_DISCR, N_VALUES)
+results_dir = config['results_dir'] + '/' + config['experiment_name'] + f'/potentialness/{NOW}'
+os.makedirs(results_dir)
+potentialness_file  = results_dir + f'/pot.csv'
+config['potentialness_file'] = potentialness_file
+
+for running_value in tqdm(np.linspace(LOW_VALUE, HIGH_VALUE, N_VALUES)):
+	SPA = fpa.SinglePriceAuction(n_discr = N_DISCR, values = [config['fixed_value'],running_value])
+	G = ng.Game(SPA.skeleton)
+	config['running_value'] = running_value
+	U = ng.PayoffPotValue(game = G, payoff_vector = SPA.utility, **config)
+
+utils.plot_value_potentialness_FPSB(potentialness_file, config['fixed_value'], N_DISCR, N_VALUES)
 
 ############################################################
 
