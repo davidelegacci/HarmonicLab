@@ -45,8 +45,10 @@ class Payoff():
         self.payoff_vector = payoff_vector
 
         self.uN, self.uP, self.uH , self.potential = self.decompose_payoff()
+        self.Du, self.DuP, self.DuH = self.hodge_decomposition()
 
         self.potentialness = self.measure_potentialness()
+        self.flow_potentialness = self.measure_flow_potentialness()
 
         self.verbose_payoff()
         
@@ -84,6 +86,29 @@ class Payoff():
 
         return [uN, uP, uH, phi]
 
+    def hodge_decomposition(self):
+        '''Perform decomposition in flows space, forget about pseudo-inverse'''
+
+        # print('start decomposition')
+
+        u = self.payoff_vector
+
+        e = self.game.exact_projection
+
+        PWC = self.game.pwc_matrix
+
+        # V1
+        # Du = PWC @ u
+        # DuP = e @ Du.T
+        # DuH = Du - DuP.T
+
+        # V2
+        Du = PWC @ u
+        DuP = e @ PWC @ u
+        DuH = Du - DuP
+
+        return [Du, DuP, DuH]
+
     def round_matrix(self,L):
         L =  (L.flatten()).tolist()[0]
         return [round(x,4) for x in L]
@@ -110,6 +135,15 @@ class Payoff():
         potentialness = uP_norm / (uP_norm + uH_norm)
         return potentialness
 
+    def measure_flow_potentialness(self):
+        '''
+        Measure Euclidean norm of FLOWS in C1, so that non-strategic component does not play any role
+        '''
+        DuP_norm = float(((self.DuP @ self.DuP.T)[0][0]))**0.5
+        DuH_norm = float(((self.DuH @ self.DuH.T)[0][0]))**0.5
+        flow_potentialness = DuP_norm / (DuP_norm + DuH_norm)
+        return flow_potentialness
+
 
     def write_value_potentialness_FPSB(self):
         data = [[self.potentialness, self.running_value, self.game.num_strategies_for_player]]
@@ -126,10 +160,44 @@ class Payoff():
         print(f'uP = {self.round_matrix(self.uP)}')
         print(f'uH = {self.round_matrix(self.uH)}')
         print()
+        if self.game.num_players == 2: # and self.game.num_strategies_for_player[0] == self.game.num_strategies_for_player[1]:
+            print('\n-------------------- DECOMPOSITION - matrix form for 2 players case-----------------------')
+            print(f'u = {self.round_list(list(self.payoff_vector))}')
+            print()
+            A1, A2 = utils.uu_to_A( self.payoff_vector, self.game.num_strategies_for_player )
+            AN1, AN2 = utils.uu_to_A( self.round_matrix(self.uN), self.game.num_strategies_for_player )
+            AP1, AP2 = utils.uu_to_A( self.round_matrix(self.uP), self.game.num_strategies_for_player )
+            AH1, AH2 = utils.uu_to_A( self.round_matrix(self.uH), self.game.num_strategies_for_player )
+            print('u')
+            print(A1)
+            print()
+            print(A2)
+            print()
+            print('uN')
+            print(AN1)
+            print()
+            print(AN2)
+            print()
+            print('uP')
+            print(AP1)
+            print()
+            print(AP2)
+            print()
+            print('uH')
+            print(AH1)
+            print()
+            print(AH2)
+            print()
         print(f'potential of uP = {self.round_matrix(self.potential)}')
         print('\n-------------------- SLMATH WORK ON DECOMPOSITION  -----------------------')
         print(f'Potentialness = {self.potentialness}')
         print('--------------------------------------\n')
+        print('\n-------------------- FLOWS DECOMPOSITION  -----------------------')
+        print()
+        print(f'Du = {self.round_matrix(self.Du)}')
+        print(f'DuP = {self.round_matrix(self.DuP)}')
+        print(f'DuH = {self.round_matrix(self.DuH)}')
+        print(f'\nFlow potentialness = {self.flow_potentialness}')
 
 
 class PayoffPotValue(Payoff):
@@ -435,7 +503,9 @@ class PayoffFull(PayoffNE):
         \x5cnode[main, label={{right:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(self.potential[1],2))}]}}}}({get_payoff((1,2))})}}] (2) [right of=1] {{$12$}};
         \x5cnode[main, label={{left:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(self.potential[2],2))}]}}}}({get_payoff((2,1))})}}] (3) [above of=1] {{$21$}};
         \x5cnode[main, label={{right:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(self.potential[3],2))}]}}}}({get_payoff((2,2))})}}] (4) [above of=2] {{$22$}}; 
+
                 """
+
 
             if not potential:
                 nodes_latex_code = f"""

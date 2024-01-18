@@ -100,6 +100,34 @@ def plot_value_potentialness_FPSB(file_path, fixed_value, n_discr, n_values):
 def make_alpha_game(alpha, uP, uH):
     return alpha * np.array(uP) + (1 - alpha) * np.array(uH)
 
+# def uu_to_A_homogeneous(uu):
+#     # Two players have same # of strategies; square matrices A1 x A1
+#     # Works only in homogeneous case
+#     AN = len(uu)
+#     assert AN%2 == 0
+#     A = int(AN / 2)
+#     a = int(np.sqrt(A))
+#     assert A == a**2
+#     A1 = np.array(uu[:A]).reshape(a, a)
+#     A2 = np.array(uu[A:]).reshape(a, a)
+#     return A1, A2
+
+def uu_to_A(uu, game_skeleton):
+    # Two players do not have necessarily same # of strategies; A1 x A2 matrices
+    # Works also in homogeneous case
+    # game_skeleton = [A1, A2]
+    A1, A2 = game_skeleton
+    A = A1 * A2
+    AN = 2 * A
+    assert AN == len(uu)
+    u1, u2 = uu[:A], uu[A:]
+    M1 = np.array(u1).reshape(A1, A2)
+    M2 = np.array(u2).reshape(A1, A2)
+    return M1, M2
+
+
+
+
 
 
 

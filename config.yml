@@ -1,5 +1,5 @@
 results_dir : 'candogan_results'
-experiment_name : 'hart_mas_2006'
+experiment_name : 'recurrent_zerosum_non_coexact'
 latex_plot_potential : False
 
 # Potentialness in sealed bid first price
