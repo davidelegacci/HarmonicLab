@@ -1,5 +1,5 @@
 results_dir : 'candogan_results'
-experiment_name : 'recurrent_zerosum_non_coexact'
+experiment_name : 'exploring_harmonic_dynamics'
 latex_plot_potential : False
 
 # Potentialness in sealed bid first price
@@ -10,8 +10,12 @@ fixed_value : 1
 
 
 # Change inner product in Game
-metric_type : 'euclidean'
+#  in ['euclidean', 'random', 'manual', 'diagonal', 'harmonic']
+# metric_type : 'euclidean'
+metric_type : 'harmonic'
 manual_metric_generators : 0
+
+harmonic_measure : [  [1, 2], [1, 2, 1]  ]
 
 # If payoff_variable_format == 'x' the variables that appear in the parametric solution of the harmonic system are x1, x2, ..., xAN
 # Else, the variables are strings like u(i, (a)), explicitely showing player and strategy profile

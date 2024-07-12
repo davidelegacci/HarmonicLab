@@ -49,16 +49,31 @@ class DiagonalMetric(object):
 
 		for i in range(dim):
 			self.matrix[i][i] = i + N
-		
-class ManualMetric():
-	"""input manual matrix generator of metric, output metric"""
-	def __init__(self, A):
-		A = np.array(A)
-		self.matrix = self.make_metric(A)
 
-	def make_metric(self, A):
-		At = A.transpose()
-		return np.matmul(A,At)
+# -------------------------------------------------------------	
+# 12.07.2024
+# Deprecated. Initially this was used to input any matrix with no zeros on diagonal,
+# multiply it by its transpose, and get automatically a metric (symmetric, pos def)
+# rather than having to input a well-defined metric by hand.
+# This introduced a square root factor, e.g. inputting a diagonal metric as generator
+# the final metric would have the squares on the diagonal.
+
+# Ater understanding the connection between generalixed harmonic games and
+# C1 inner product it's better to fine tune the metric by hand,
+# providing as input the precise desired matrix of the metric, 
+# without thinking of the spurious square root factor
+# -------------------------------------------------------------	
+# class ManualMetric():
+# 	"""input manual matrix generator of metric, output metric"""
+# 	def __init__(self, A):
+# 		A = np.array(A)
+# 		self.matrix = self.make_metric(A)
+
+# 	def make_metric(self, A):
+# 		At = A.transpose()
+# 		return np.matmul(A,At)
+# -------------------------------------------------------------	
+# -------------------------------------------------------------	
 
 ########################################################
 # Metric class

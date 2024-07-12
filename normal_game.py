@@ -16,9 +16,11 @@ import metric
 import nashpy as nash
 import pandas as pd
 
-# DIAGONAL_SHIFT_0 = 1
-# DIAGONAL_SHIFT_1 = 3
+DIAGONAL_SHIFT_0 = 1
+DIAGONAL_SHIFT_1 = 1
 # kwargs[latex_plot_potential] = False
+
+# MANUAL_METRICS
 
 class Player():
     """
@@ -47,8 +49,14 @@ class Payoff():
         self.uN, self.uP, self.uH , self.potential = self.decompose_payoff()
         self.Du, self.DuP, self.DuH = self.hodge_decomposition()
 
-        self.potentialness = self.measure_potentialness()
-        self.flow_potentialness = self.measure_flow_potentialness()
+        try:
+            self.potentialness, self.potentialness_new = self.measure_potentialness()
+            self.flow_potentialness, self.flow_potentialness_new = self.measure_flow_potentialness()
+        except:
+            print('Non strategic, cannot measure potentialness')
+            self.potentialness, self.potentialness_new = [-1, -1]
+            self.flow_potentialness, self.flow_potentialness_new = [-1, -1]
+
 
         self.verbose_payoff()
         
@@ -133,7 +141,14 @@ class Payoff():
         uP_norm = float(((self.uP @ self.uP.T)[0][0]))**0.5
         uH_norm = float(((self.uH @ self.uH.T)[0][0]))**0.5
         potentialness = uP_norm / (uP_norm + uH_norm)
-        return potentialness
+
+        uPH = self.uP + self.uH
+        uPH_norm = float(((uPH @ uPH.T)[0][0]))**0.5
+        potentialness_new = uP_norm / uPH_norm
+
+        return potentialness, potentialness_new
+
+
 
     def measure_flow_potentialness(self):
         '''
@@ -142,7 +157,12 @@ class Payoff():
         DuP_norm = float(((self.DuP @ self.DuP.T)[0][0]))**0.5
         DuH_norm = float(((self.DuH @ self.DuH.T)[0][0]))**0.5
         flow_potentialness = DuP_norm / (DuP_norm + DuH_norm)
-        return flow_potentialness
+
+        DuPH = self.DuP + self.DuH
+        DuPH_nowm = float(((DuPH @ DuPH.T)[0][0]))**0.5
+        flow_potentialness_new = DuP_norm / DuPH_nowm
+
+        return flow_potentialness, flow_potentialness_new
 
 
     def write_value_potentialness_FPSB(self):
@@ -191,6 +211,7 @@ class Payoff():
         print(f'potential of uP = {self.round_matrix(self.potential)}')
         print('\n-------------------- SLMATH WORK ON DECOMPOSITION  -----------------------')
         print(f'Potentialness = {self.potentialness}')
+        print(f'Potentialness new = {self.potentialness_new}')
         print('--------------------------------------\n')
         print('\n-------------------- FLOWS DECOMPOSITION  -----------------------')
         print()
@@ -198,6 +219,7 @@ class Payoff():
         print(f'DuP = {self.round_matrix(self.DuP)}')
         print(f'DuH = {self.round_matrix(self.DuH)}')
         print(f'\nFlow potentialness = {self.flow_potentialness}')
+        print(f'Flow potentialness new = {self.flow_potentialness_new}')
 
 
 class PayoffPotValue(Payoff):
@@ -669,6 +691,7 @@ class PayoffFull(PayoffNE):
             pprint.pprint(self.payoff_function)
             print('\nIndividual payoff')
             pprint.pprint(self.payoff_dict)
+            print(utils.orange(f'\nMetric can be changed in config.yml. Current: {self.game.metric_type}'))
             print(utils.orange(f'\nIs harmonic (in N+H) wrt current metric: {self.is_harmonic()}'))
             print(utils.orange(f'Is harmonic (in N+H) wrt euclidean metric: {self.is_euclidean_harmonic()}'))
             print('\n-------------------- LATEX 2X3 GRAPH  -----------------------')
@@ -704,7 +727,12 @@ class Game():
         # Basis of (C^0)^N of cardinality AN, i.e. basis of vector space of payoffs
         # Its elements are e = (i,a) for i in N for a in A
         # e.g. for 2x2 it looks like [[0, (1, 1)], [0, (1, 2)], [0, (2, 1)], [0, (2, 2)], [1, (1, 1)], [1, (1, 2)], [1, (2, 1)], [1, (2, 2)]]
+        
+        # original ordering
         self.payoff_basis = [ (i.player_name-1, a) for i in self.players for a in self.strategy_profiles ]
+
+        # switch ordering
+        #self.payoff_basis = [ (i.player_name-1, a) for a in self.strategy_profiles for i in self.players  ]
 
         ######################################################################
         # RESPONSE GRAPH
@@ -833,6 +861,9 @@ class Game():
 
 
 
+
+
+
         
 
 class GameFull(Game):
@@ -846,13 +877,14 @@ class GameFull(Game):
         """num_strategies_for_player is list, e.g. [3] for 1 player 3 strategies, [2,2] for 2 players 2 strategies each, etc.
         If input metric manually, input matrix A such that metric is g = A*At
         Two matrices are needed, one of dimension = dim C0 and one of dimension = dim C1
-        In this case the manual_metric_generators input is a list of these two matrices [A, B]
+        In this case the manual_metrics input is a list of these two matrices [A, B]
         """
 
         self.kwargs = kwargs
         self.metric_type = kwargs['metric_type']
-        assert(self.metric_type in ['euclidean', 'random', 'manual', 'diagonal'])
-        self.manual_metric_generators = kwargs['manual_metric_generators']
+        assert(self.metric_type in ['euclidean', 'random', 'manual', 'diagonal', 'harmonic'])
+        
+
 
 
         ######################################################################
@@ -947,19 +979,90 @@ class GameFull(Game):
 
 
         elif self.metric_type == 'manual':
-            assert(len(self.manual_metric_generators) == 2)
-            A0, A1 = self.manual_metric_generators
+
+            # specify here manual metrics
+
+            g0 = np.eye( self.dim_C0 )
+            g1 = np.eye( self.dim_C1 )
+
+            # self.manual_metrics = [g0, g1]
 
             # Make sure square matrices
-            assert( len(A0) == len(A0[0]))
-            assert( len(A1) == len(A1[1]))
+            assert( len(g0) == len(g0[0]))
+            assert( len(g1) == len(g1[1]))
 
             # Make sure right dimension
-            assert( len(A0) == self.dim_C0)
-            assert( len(A1) == self.dim_C1)
+            assert( len(g0) == self.dim_C0)
+            assert( len(g1) == self.dim_C1)
 
-            self.metric_0 = metric.Metric( metric.ManualMetric(A0).matrix )
-            self.metric_1 = metric.Metric( metric.ManualMetric(A1).matrix )
+            self.metric_0 = metric.Metric( g0 )
+            self.metric_1 = metric.Metric( g1 )
+
+
+        elif self.metric_type == 'harmonic':
+
+            self.harmonic_measure = kwargs['harmonic_measure']
+            assert len(self.harmonic_measure) == len(self.num_strategies_for_player), "harmonic measure has bad size"
+            for i, m in enumerate(self.harmonic_measure):
+                assert len(m) == self.num_strategies_for_player[i], "harmonic measure has bad size"
+
+            g0 = np.eye( self.dim_C0 )
+            g1 = np.eye( self.dim_C1 )
+
+            # perturb C1 metric
+            edges = self.networkx_graph.edges
+            skeleton = self.num_strategies_for_player
+            players = range(self.num_players)
+            pures = self.nodes
+            pures_play = [ p.strategies for p in self.players ]
+
+            # HARMONIC MEASUIRE list of dicts, measure in C0N
+            self.mu = [ dict(zip(pures_play[i], self.harmonic_measure[i])) for i in players  ]
+
+            # PRODUCT MEASURE, measure on space of action profiles, C0
+            # P stands for product; this is product measure
+            muPvalues = [      np.prod(  [ self.mu[i][  a[i]  ]  for i in players   ]   )       for a in pures    ]
+            self.muP = dict(zip(pures, muPvalues))
+
+            # EDGES MEASURE, measure in space C1
+            muEvalues = [    self.muP[ e[0] ] *  self.muP[ e[1] ]     for e in edges    ]
+            self.muE = dict(zip(edges, muEvalues))
+
+            #--------------------------------------------------------
+            print(f"\nHarmonic measure: {self.harmonic_measure}, i.e.")
+
+            for i, mui in enumerate(self.mu):
+                print(f"\nMeasure player {i}")
+                [ print( f" {ai} : {mui[ai]} " ) for ai in mui ]
+
+            print("\nProduct measure on action profiles:")
+            for a in pures:
+                print(f"{a}: {self.muP[a]}")
+
+
+            print("\nMeasure on edges:")
+            for e in self.muE:
+                print(f"{e}: {self.muE[e]}")
+            #--------------------------------------------------------
+
+            edges_measure = list(self.muE.values())
+            assert len(edges_measure) == len(g1)
+
+            # place edges measures on diagonal of C1 inner product (fraction and square root)
+            for i, x in enumerate(edges_measure):
+
+                g1[i][i] = 1 / ( np.sqrt(x) )
+
+            # Make sure square matrices
+            assert( len(g0) == len(g0[0]))
+            assert( len(g1) == len(g1[1]))
+
+            # Make sure right dimension
+            assert( len(g0) == self.dim_C0)
+            assert( len(g1) == self.dim_C1)
+
+            self.metric_0 = metric.Metric( g0 )
+            self.metric_1 = metric.Metric( g1 )
     
         ######################################################################
         # PWC MATRIX C0N --> C1
@@ -1092,6 +1195,7 @@ class GameFull(Game):
         # MATRIX adjoint of coboundary 0 map
         #(d_0)+ : C^1 --> C^0
         # Adjoint of d_0: C^0 --> C^1
+        # Flat and sharp are wrt metrics in C_0 and C_1
         self.delta_0_adjoint_matrix = np.matmul(self.metric_0.flat_matrix, np.matmul(self.boundary_1_matrix, self.metric_1.sharp_matrix))
         ######################################################################
 
