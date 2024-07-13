@@ -772,7 +772,14 @@ class Game():
         # Pseudo-Inverse and projection block
         # Moore-Penrose pseudo-inverse of pwc
         # print('start PINV block')
+
+        # ------------------------------------------------
+        # Safe, euclidean
         self.pwc_matrix_pinv = npla.pinv(self.pwc_matrix)
+        # ------------------------------------------------
+        # Generalized pinv
+        # self.pwc_matrix_pinv = metric.Homomorphism( self.pwc_matrix, self.metric_0N, self.metric_1 )
+        # ------------------------------------------------
 
         # PI: C0N --> C0N projection onto Euclidean orthogonal complement of ker(δ_0^N)
         self.normalization_projection = np.matmul(self.pwc_matrix_pinv, self.pwc_matrix)
@@ -963,19 +970,22 @@ class GameFull(Game):
 
         ######################################################################
         # INNER PRODUCT
-        # metric_0 and metric_1 are Metric instances for C0 and C1
+        # metric_0, metric_1, metric_0N are Metric instances for C0, C1, C0N
         ######################################################################
         if self.metric_type == 'euclidean':
             self.metric_0 = metric.Metric( metric.EuclideanMetric(self.dim_C0).matrix )
             self.metric_1 = metric.Metric( metric.EuclideanMetric(self.dim_C1).matrix )
+            self.metric_0N = metric.Metric( metric.EuclideanMetric(self.dim_C0N).matrix )
 
         elif self.metric_type == 'diagonal':
             self.metric_0 = metric.Metric( metric.DiagonalMetric(self.dim_C0, DIAGONAL_SHIFT_0).matrix )
             self.metric_1 = metric.Metric( metric.DiagonalMetric(self.dim_C1, DIAGONAL_SHIFT_1).matrix )
+            self.metric_0N = metric.Metric( metric.DiagonalMetric(self.dim_C0N, DIAGONAL_SHIFT_1).matrix )
 
         elif self.metric_type == 'random':
             self.metric_0 = metric.Metric( metric.RandomMetric(self.dim_C0).matrix )
             self.metric_1 = metric.Metric( metric.RandomMetric(self.dim_C1).matrix )
+            self.metric_0N = metric.Metric( metric.RandomMetric(self.dim_C0N).matrix )
 
 
         elif self.metric_type == 'manual':
