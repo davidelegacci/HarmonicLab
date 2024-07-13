@@ -985,18 +985,23 @@ class GameFull(Game):
             g0 = np.eye( self.dim_C0 )
             g1 = np.eye( self.dim_C1 )
 
+            g0N = np.eye( self.dim_C0N )
+
             # self.manual_metrics = [g0, g1]
 
             # Make sure square matrices
             assert( len(g0) == len(g0[0]))
             assert( len(g1) == len(g1[1]))
+            assert( len(g0N) == len(g0N[1]))
 
             # Make sure right dimension
             assert( len(g0) == self.dim_C0)
             assert( len(g1) == self.dim_C1)
+            assert( len(g0N) == self.dim_C0N)
 
             self.metric_0 = metric.Metric( g0 )
             self.metric_1 = metric.Metric( g1 )
+            self.metric_0N = metric.Metric( g0N )
 
 
         elif self.metric_type == 'harmonic':
@@ -1008,23 +1013,34 @@ class GameFull(Game):
 
             g0 = np.eye( self.dim_C0 )
             g1 = np.eye( self.dim_C1 )
+            g0N = np.eye( self.dim_C0N )
 
-            # perturb C1 metric
+            # perturb C1 metric and C0N metric
             edges = self.networkx_graph.edges
             skeleton = self.num_strategies_for_player
             players = range(self.num_players)
             pures = self.nodes
             pures_play = [ p.strategies for p in self.players ]
 
+            
+
             # HARMONIC MEASUIRE list of dicts, measure in C0N
+            # Indexed by [i][ai] for i in platers for ai in pures_play
             self.mu = [ dict(zip(pures_play[i], self.harmonic_measure[i])) for i in players  ]
 
             # PRODUCT MEASURE, measure on space of action profiles, C0
             # P stands for product; this is product measure
+            # Indexed by [a] for a in pures
             muPvalues = [      np.prod(  [ self.mu[i][  a[i]  ]  for i in players   ]   )       for a in pures    ]
             self.muP = dict(zip(pures, muPvalues))
 
+            # MASSES mi, measure on space of players N
+            # Indexed by [i] for i in players
+            massValues = [    np.sum(  [   self.mu[i][ai] for ai in pures_play[i]   ]  )    for i in players   ]
+            self.mass = dict(zip(players, massValues))
+
             # EDGES MEASURE, measure in space C1
+            # Indexed by [e] for e in edges
             muEvalues = [    self.muP[ e[0] ] *  self.muP[ e[1] ]     for e in edges    ]
             self.muE = dict(zip(edges, muEvalues))
 
@@ -1039,10 +1055,17 @@ class GameFull(Game):
             for a in pures:
                 print(f"{a}: {self.muP[a]}")
 
+            print("\nMasses:")
+            for i in players:
+                print(f"{i}: {self.mass[i]}")
+
 
             print("\nMeasure on edges:")
             for e in self.muE:
                 print(f"{e}: {self.muE[e]}")
+
+            #--------------------------------------------------------
+            # Build harmonic C1 inner product
             #--------------------------------------------------------
 
             edges_measure = list(self.muE.values())
@@ -1053,16 +1076,34 @@ class GameFull(Game):
 
                 g1[i][i] = 1 / ( np.sqrt(x) )
 
+            #--------------------------------------------------------
+            # Build harmonic C0N inner product
+            #--------------------------------------------------------
+
+            C0N_measures_packed = [   [   self.mass[i] * self.muP[a]  for a in pures   ]    for i in players   ]
+            # flatten; single list of size equal to dimC0N; these numbers go on diagonal of C0N inner product
+            # Up to reciprocal / partial fraction / square root to tune
+            C0N_measures = [item for sublist in C0N_measures_packed for item in sublist]
+
+            for i, x in enumerate(C0N_measures):
+                g0N[i][i] = C0N_measures[i]
+
+
+            #--------------------------------------------------------
+
             # Make sure square matrices
             assert( len(g0) == len(g0[0]))
             assert( len(g1) == len(g1[1]))
+            assert( len(g0N) == len(g0N[1]))
 
             # Make sure right dimension
             assert( len(g0) == self.dim_C0)
             assert( len(g1) == self.dim_C1)
+            assert( len(g0N) == self.dim_C0N)
 
             self.metric_0 = metric.Metric( g0 )
             self.metric_1 = metric.Metric( g1 )
+            self.metric_0N = metric.Metric( g0N )
     
         ######################################################################
         # PWC MATRIX C0N --> C1
@@ -1521,6 +1562,9 @@ class GameFull(Game):
         print(self.metric_0.matrix)
         print('C1')
         print(self.metric_1.matrix)
+        print()
+        print('C0N')
+        print(self.metric_0N.matrix)
         print()
         print(sp.latex(sp.Matrix(self.metric_0.matrix)))
         print(sp.latex(sp.Matrix(self.metric_1.matrix)))

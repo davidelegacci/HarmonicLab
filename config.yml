@@ -11,11 +11,11 @@ fixed_value : 1
 
 # Change inner product in Game
 #  in ['euclidean', 'random', 'manual', 'diagonal', 'harmonic']
-metric_type : 'euclidean'
-# metric_type : 'harmonic'
+# metric_type : 'euclidean'
+metric_type : 'harmonic'
 manual_metric_generators : 0
 
-harmonic_measure : [  [1, 2], [1, 2, 1]  ]
+harmonic_measure : [  [1, 2], [1, 2]  ]
 
 # If payoff_variable_format == 'x' the variables that appear in the parametric solution of the harmonic system are x1, x2, ..., xAN
 # Else, the variables are strings like u(i, (a)), explicitely showing player and strategy profile
