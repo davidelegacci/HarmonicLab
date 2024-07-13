@@ -150,6 +150,7 @@ class Homomorphism():
 		self.adjoint = self.make_adjoint()
 		self.pinv = self.make_pinv()
 
+
 	def make_adjoint(self):
 		return self.metric_domain.sharp_matrix @ self.dual(self.matrix) @ self.metric_codomain.flat_matrix
 

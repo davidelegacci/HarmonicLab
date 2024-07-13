@@ -11,8 +11,8 @@ fixed_value : 1
 
 # Change inner product in Game
 #  in ['euclidean', 'random', 'manual', 'diagonal', 'harmonic']
-# metric_type : 'euclidean'
-metric_type : 'harmonic'
+metric_type : 'euclidean'
+# metric_type : 'harmonic'
 manual_metric_generators : 0
 
 harmonic_measure : [  [1, 2], [1, 2, 1]  ]
