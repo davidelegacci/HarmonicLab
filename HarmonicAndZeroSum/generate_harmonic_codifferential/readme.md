@@ -1,0 +1,1 @@
+generates harmonic game symbolically using definition of codifferential operator on differential forms; base on Hodge theory
