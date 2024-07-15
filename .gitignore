@@ -1,9 +1,13 @@
 *.DS_Store
+
 __pycache__/
 .ipynb_checkpoints
 interesting_cases/
 candogan_results/
+results/
+
 *.csv
 *.pdf
 *.jpg
 *.png
+*.html
