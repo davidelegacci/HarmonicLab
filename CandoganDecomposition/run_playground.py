@@ -3,7 +3,8 @@
 # Candogan
 
 ############################################################
-import normal_game	 as ng
+# import normal_game_minimal_euclidean as ng
+import normal_game_full as ng
 ############################################################
 
 # quick list for size of u
@@ -37,10 +38,15 @@ start = time.time()
 
 print('\n\n\n\n\n\n')
 
+# ---------------------------------
 G = ng.GameFull([2,2], **config)
-# G = ng.Game([2,3], **config)
+# ---------------------------------
 
-u = np.random.randint(-5, 5, G.num_payoffs)
+# u = np.random.randint(-5, 5, G.num_payoffs)
+# ---------------------------------
+
+u = [1.5621, -0.781, -1.1046, 0.5523, -1.5621, 1.1046, 0.781, -0.5523]
+
 
 # u = [0.9, -0.6, -0.3, -0.9, 0.6, 0.3, -0.6, 0.4, 0.2, 0.6, -0.4, -0.2]
 

@@ -777,8 +777,26 @@ class Game():
         # Safe, euclidean
         self.pwc_matrix_pinv = npla.pinv(self.pwc_matrix)
         # ------------------------------------------------
-        # Generalized pinv
+
+        # ------------------------------------------------
+        # Generalized pinv; this is where needed to merge classes
+        # ------------------------------------------------
+        # Uncommenting this will raise error, because inner product is defined in GameFull class, and we are
+        # currently in Game class
+        # In version nromal_game_full.py I merged the classed Game and GameFull into a single GameFull class
+        # (as it was in the original implementation; the separation of Game and GameFull class happened
+        # when collaborating with M and M to focus on the performance of the decomposition. For theoretical 
+        # research, it's better to have the full set of features, to run on small toy models)
+        # So, the merging back of the two classes is not homogeneous, in the sense that it keeps separated on top
+        # the methods strictly necessary for the decomposition, and it pastes on the bottom verbatim all the other additional
+        # methods. In the original implementation, the two type of metods (essential and additional) were mixed up.
+        # Now the code is less readable, because logically some methods should be defined close to each other; but it is more
+        # compartimentalized, in the sense that the essential methods are all togehter. Anyways, I'm getting on a tangent.
+        # The line below is what made necessary to merge the classes back. I leave it here for reference, but
+        # do not uncomment it.
+        # ------------------------------------------------
         # self.pwc_matrix_pinv = metric.Homomorphism( self.pwc_matrix, self.metric_0N, self.metric_1 )
+        # ------------------------------------------------
         # ------------------------------------------------
 
         # PI: C0N --> C0N projection onto Euclidean orthogonal complement of ker(δ_0^N)
