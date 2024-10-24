@@ -47,6 +47,8 @@ class Payoff():
         self.payoff_vector = payoff_vector
 
         self.uN, self.uP, self.uH , self.potential = self.decompose_payoff()
+        # self.nice_potential = self.round_matrix(self.potential)
+
         self.Du, self.DuP, self.DuH = self.hodge_decomposition()
 
         try:
@@ -520,39 +522,43 @@ class PayoffFull(PayoffNE):
             ##################################
             # if potential include potential function at nodes
             if potential:
+                nice_potential = np.array(self.potential)[0] + 1.5 # can shift by arbitrary constant
                 nodes_latex_code = f"""
-        \x5cnode[main, label={{left:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(self.potential[0],2))}]}}}}({get_payoff((1,1))}) }}] (1) {{$11$}};
-        \x5cnode[main, label={{right:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(self.potential[1],2))}]}}}}({get_payoff((1,2))})}}] (2) [right of=1] {{$12$}};
-        \x5cnode[main, label={{left:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(self.potential[2],2))}]}}}}({get_payoff((2,1))})}}] (3) [above of=1] {{$21$}};
-        \x5cnode[main, label={{right:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(self.potential[3],2))}]}}}}({get_payoff((2,2))})}}] (4) [above of=2] {{$22$}}; 
+        \x5cnode[main, label={{left:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(nice_potential[0],2))}]}}}}({get_payoff((1,1))}) }}] (1) {{AA}};
+        \x5cnode[main, label={{right:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(nice_potential[1],2))}]}}}}({get_payoff((1,2))})}}] (2) [right of=1] {{AB}};
+        \x5cnode[main, label={{left:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(nice_potential[2],2))}]}}}}({get_payoff((2,1))})}}] (3) [above of=1] {{BA}};
+        \x5cnode[main, label={{right:\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{nice(round(nice_potential[3],2))}]}}}}({get_payoff((2,2))})}}] (4) [above of=2] {{BB}}; 
 
                 """
 
 
             if not potential:
                 nodes_latex_code = f"""
-        \x5cnode[main, label={{left:\x5csmall {get_payoff((1,1))}}}] (1) {{$11$}};
-        \x5cnode[main, label={{right:\x5csmall {get_payoff((1,2))}}}] (2) [right of=1] {{$12$}};
-        \x5cnode[main, label={{left:\x5csmall {get_payoff((2,1))}}}] (3) [above of=1] {{$21$}};
-        \x5cnode[main, label={{right:\x5csmall {get_payoff((2,2))}}}] (4) [above of=2] {{$22$}}; 
+        \x5cnode[main, label={{left:\x5csmall ({get_payoff((1,1))})}}] (1) {{AA}};
+        \x5cnode[main, label={{right:\x5csmall ({get_payoff((1,2))})}}] (2) [right of=1] {{AB}};
+        \x5cnode[main, label={{left:\x5csmall ({get_payoff((2,1))})}}] (3) [above of=1] {{BA}};
+        \x5cnode[main, label={{right:\x5csmall ({get_payoff((2,2))})}}] (4) [above of=2] {{BB}}; 
                 """
             ##################################
 
-            LaTex_code = f"""\x5cbegin{{tikzpicture}}[node distance={{17mm}}, thick, main/.style = {{draw, circle}}]
+            paper_node_distance = "17mm"
+            poster_node_distance = "50mm"
+
+            LaTex_code = f"""\x5cbegin{{tikzpicture}}[node distance={{{poster_node_distance}}}, thick, main/.style = {{draw, circle}}]
 
             {nodes_latex_code}
 
         % Horizontal down
-        \x5cdraw [{ar_a}, red] (1) -- node[below]{{${a}$}} (2);
+        \x5cdraw [{ar_a}, red, line width = 4pt] (1) -- node[below]{{${a}$}} (2);
 
         % Horizontal up
-        \x5cdraw [{ar_d}, red] (3) -- node[above]{{${d}$}} (4);
+        \x5cdraw [{ar_d}, red, line width = 4pt] (3) -- node[above]{{${d}$}} (4);
 
         % Vertical left
-        \x5cdraw [{ar_g}, blue] (1) -- node[left]{{${g}$}} (3);
+        \x5cdraw [{ar_g}, blue, line width = 4pt] (1) -- node[left]{{${g}$}} (3);
 
         % Vertical right
-        \x5cdraw [{ar_h}, blue] (2) -- node[left]{{${h}$}} (4);
+        \x5cdraw [{ar_h}, blue, line width = 4pt] (2) -- node[left]{{${h}$}} (4);
         \x5cend{{tikzpicture}}"""
 
             print(LaTex_code)
@@ -634,13 +640,14 @@ class PayoffFull(PayoffNE):
             ##################################
             # if potential include potential function at nodes
             if potential:
+                nice_potential = np.array(self.potential)[0]
                 nodes_latex_code = f"""
-        \x5cnode[main, label={{[xshift=-1.5cm, yshift=-1cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(self.potential[0],2)}]}}}}({get_payoff((1,1))}) }}] (1) {{$11$}};
-        \x5cnode[main, label={{[xshift=-0.0cm, yshift=-1.4cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(self.potential[1],2)}]}}}}({get_payoff((1,2))})}}] (2) [right of=1] {{$12$}};
-        \x5cnode[main, label={{[xshift=+1.5cm, yshift=-1cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(self.potential[2],2)}]}}}}({get_payoff((1,3))})}}] (3) [right of=2] {{$13$}};
-        \x5cnode[main, label={{[xshift=-1.5cm, yshift=-1cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(self.potential[3],2)}]}}}}({get_payoff((2,1))})}}] (4) [above of=1] {{$21$}};
-        \x5cnode[main, label={{[xshift=-0.0cm, yshift=-0.05cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(self.potential[4],2)}]}}}}({get_payoff((2,2))})}}] (5) [right of=4] {{$22$}}; 
-        \x5cnode[main, label={{[xshift=+1.5cm, yshift=-1cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(self.potential[5],2)}]}}}}({get_payoff((2,3))})}}] (6) [right of=5] {{$23$}};
+        \x5cnode[main, label={{[xshift=-1.5cm, yshift=-1cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(nice_potential[0],2)}]}}}}({get_payoff((1,1))}) }}] (1) {{$11$}};
+        \x5cnode[main, label={{[xshift=-0.0cm, yshift=-1.4cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(nice_potential[1],2)}]}}}}({get_payoff((1,2))})}}] (2) [right of=1] {{$12$}};
+        \x5cnode[main, label={{[xshift=+1.5cm, yshift=-1cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(nice_potential[2],2)}]}}}}({get_payoff((1,3))})}}] (3) [right of=2] {{$13$}};
+        \x5cnode[main, label={{[xshift=-1.5cm, yshift=-1cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(nice_potential[3],2)}]}}}}({get_payoff((2,1))})}}] (4) [above of=1] {{$21$}};
+        \x5cnode[main, label={{[xshift=-0.0cm, yshift=-0.05cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(nice_potential[4],2)}]}}}}({get_payoff((2,2))})}}] (5) [right of=4] {{$22$}}; 
+        \x5cnode[main, label={{[xshift=+1.5cm, yshift=-1cm]\x5csmall \x5ctextbf{{\x5ctextcolor{{teal}}{{[{round(nice_potential[5],2)}]}}}}({get_payoff((2,3))})}}] (6) [right of=5] {{$23$}};
                 """
 
             if not potential:
@@ -694,7 +701,7 @@ class PayoffFull(PayoffNE):
             print(utils.orange(f'\nMetric can be changed in config.yml. Current: {self.game.metric_type}'))
             print(utils.orange(f'\nIs harmonic (in N+H) wrt current metric: {self.is_harmonic()}'))
             print(utils.orange(f'Is harmonic (in N+H) wrt euclidean metric: {self.is_euclidean_harmonic()}'))
-            print('\n-------------------- LATEX 2X3 GRAPH  -----------------------')
+            print(f'\n-------------------- LATEX RESPONSE GRAPH {self.game.num_strategies_for_player}  -----------------------')
             self.make_latex_graph_2x3_code(potential = self.kwargs['latex_plot_potential'])
             self.make_latex_graph_2x2_code(potential = self.kwargs['latex_plot_potential'])
 

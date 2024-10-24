@@ -1,6 +1,6 @@
-results_dir : 'candogan_results'
-experiment_name : 'exploring_harmonic_dynamics'
-latex_plot_potential : False
+results_dir : 'bary_decomposition'
+experiment_name : 'bary_decomposition'
+latex_plot_potential : True # Include potential in response graph
 
 # Potentialness in sealed bid first price
 plot_auction_potentialness : False
@@ -11,8 +11,8 @@ fixed_value : 1
 
 # Change inner product in Game
 #  in ['euclidean', 'random', 'manual', 'diagonal', 'harmonic']
-# metric_type : 'euclidean'
-metric_type : 'harmonic'
+metric_type : 'euclidean'
+# metric_type : 'harmonic'
 manual_metric_generators : 0
 
 harmonic_measure : [  [1, 2], [1, 2]  ]
