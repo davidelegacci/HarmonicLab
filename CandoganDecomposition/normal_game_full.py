@@ -125,8 +125,9 @@ class Payoff():
         try:
             return [round(x,4) for x in L]
         except:
-            L =  (L.flatten()).tolist()[0]
+            L =  (np.array(L).flatten()).tolist()[0]
             return [round(x,4) for x in L]
+
 
 
     def measure_potentialness(self):
@@ -562,6 +563,8 @@ class PayoffFull(PayoffNE):
 
         def make_latex_graph_2x3_code(self, potential = False):
 
+
+
             if self.game.num_strategies_for_player != [2,3]:
                 return
 
@@ -632,6 +635,7 @@ class PayoffFull(PayoffNE):
 
 
             ##################################
+
             # if potential include potential function at nodes
             if potential:
                 nodes_latex_code = f"""
@@ -953,7 +957,7 @@ class GameFull():
         self.dim_H = int(self.num_nodes * (self.num_players - 1 - sum( [ 1/ai for ai in self.num_strategies_for_player ] )) + 1)
         self.dim_N = self.dim_ker_pwc_theory
 
-        # Here dim_H is known in closed form, since dim C0N, dimP and dimN are known in closed for
+        # Here dim_H is known in closed form, since dim C0N, dimP and dimN are known in closed form
         assert(self.dim_harmonic == self.dim_H)
 
         ######################################################################

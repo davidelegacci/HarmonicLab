@@ -1,6 +1,6 @@
 results_dir : 'bary_decomposition'
 experiment_name : 'bary_decomposition'
-latex_plot_potential : True # Include potential in response graph
+latex_plot_potential : False # Include potential in response graph
 
 # Potentialness in sealed bid first price
 plot_auction_potentialness : False
