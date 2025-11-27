@@ -44,9 +44,17 @@ start = time.time()
 
 print('\n\n\n\n\n\n')
 
+#skeleton = [2, 2, 2]
+#skeleton = [3, 3]
+# skeleton = [2, 2]
+skeleton = [4, 2]
+
 # ---------------------------------
-G = ng.GameFull([2, 2, 2], **config)
+G = ng.GameFull(skeleton, **config)
 # ---------------------------------
+
+
+
 
 # u = [1, -2, -2, -1, 2, -3, -3, -1]
 # u = [3, 1, 2, 0, 0, 1, 0, 0] + [1, 3, 0, 2, 1, 0, 0, 0] +[3, 3, 2, 2, 1, 1, 0, 0]
@@ -230,6 +238,59 @@ u = np.random.randint(-5, 5, G.num_payoffs)
 # u_gen_harm = np.array([-1, -4, -3, -1, 1, 2, 2, -2])
 # u_ns = np.array([-2.0, -2.5, -2.0, -2.5, 1.5, 1.5, 0.0, -0.0])
 # u = u_gen_harm - u_ns
+
+# 3x3x3 uniform harmoic
+# u = [8, -2, -11/3, -19/3, 4, -2, -1/3, -17/3, 1, -3, -2, 0, 6, -14, 4, 0, 2, -1, 3, -2, 3, 3, -4, -2, -14, -1, 2, -5, 3, 1, -3, 3, -2, -5, 4, -3]
+
+# 2x2x2x2 unif harm
+# u = [-3, 10, -8, 13, -7, -8, -10, -3, -4, 4, -1, 0, -5, -5, -5, 0, 0, -4, -18, -2, -4, -1, -5, -1, 4, 3, 0, 3, -4, 2, 2, -3, -22, 13, -2, 1, 4, 3, -2, 3, -4, 3, -1, 2, 0, -2, -2, -4, 16, 1, 4, 4, -3, -3, -2, 0, -1, 3, -4, 4, 3, -1, -4, 1]
+
+# unif harm 2x2x2
+# u = [7, 0, 1, -6, 3, 1, -4, 2, 7, -9, -3, 4, -1, 3, 1, -2, -13, 1, 3, -2, 1, -5, -1, -4]
+
+# coordination 2x2
+# u = [5, 1, 1, 4, 5, 1, 1, 4]
+
+# chicken 2x2
+# u = [-5, 2, 1, 0, -5, 1, 2, 0]
+
+# random 2x2
+# u = 10 * np.random.rand(8)
+
+# ORDINAL GAME
+# u = np.concatenate(  [np.random.permutation( range(1, G.num_strategy_profiles+1) ) for i in G.players]   )
+
+# 222 zero-sum
+# from aspera import utils
+# U = [ [0,0,0], [-1, -1, 2], [ -1, 2, -1 ], [ 2, -1, -1 ], [ 2, -1, -1 ], [ -1, 2, -1 ], [ -1, -1, 2 ], [ 0, 0, 0 ]  ]
+# u1, u2, u3 = utils.coords_points(U)
+# u = u1 + u2 + u3
+
+# 222 zero-sum withot pure NE
+# u = [0, 0, 0, 2, -1, 1, 1, 3, 0, -1, 1, -2, 1, 0, 0, -1, 0, 1, -1, 0, 0, -1, -1, -2]
+
+## ------------------------------------------------
+# 33 Shapley Rock Paper Scissor: not harmonic
+# u = [
+# 0, 1, 0, 
+# 0, 0, 1, 
+# 1, 0, 0] + [
+# 0, 0, 1, 
+# 1, 0, 0, 
+# 0, 1, 0]
+
+# 33 standard Rock Paper Scissor: harmonic
+# u = [
+# 0.5, 1, 0, 
+# 0, 0.5, 1, 
+# 1, 0, 0.5] + [
+# 0.5, 0, 1, 
+# 1, 0.5, 0, 
+# 0, 1, 0.5]
+## ------------------------------------------------
+# 222 Jordan's Matchine pennies
+# u = [1, 1, -1, -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1]
+
 
 U = ng.PayoffFull(game = G, payoff_vector = u, **config)  
 # U = ng.Payoff(game = G, payoff_vector = u, **config)

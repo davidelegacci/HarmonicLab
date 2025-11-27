@@ -1,5 +1,5 @@
-results_dir : 'bary_decomposition'
-experiment_name : 'bary_decomposition'
+results_dir : 'harmonic_2222'
+experiment_name : 'harmonic_2222'
 latex_plot_potential : False # Include potential in response graph
 
 # Potentialness in sealed bid first price
