@@ -47,7 +47,7 @@ print('\n\n\n\n\n\n')
 #skeleton = [2, 2, 2]
 #skeleton = [3, 3]
 # skeleton = [2, 2]
-skeleton = [4, 2]
+skeleton = [2, 2]
 
 # ---------------------------------
 G = ng.GameFull(skeleton, **config)
@@ -61,7 +61,7 @@ G = ng.GameFull(skeleton, **config)
 
 # u = [-1, 2, 3, 6, +1, -2, -3, -6]
 
-u = np.random.randint(-5, 5, G.num_payoffs) 
+# u = np.random.randint(-5, 5, G.num_payoffs) 
 # u = np.arange(1, G.num_payoffs + 1)
 # ---------------------------------
 
@@ -291,6 +291,11 @@ u = np.random.randint(-5, 5, G.num_payoffs)
 # 222 Jordan's Matchine pennies
 # u = [1, 1, -1, -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, -1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1]
 
+
+## ------------------------------------------------
+# 2025-11-27 22 Eff Jv Skew
+u = [-2, -8, 3, -8, 5, 9, 1, 10]
+## ------------------------------------------------
 
 U = ng.PayoffFull(game = G, payoff_vector = u, **config)  
 # U = ng.Payoff(game = G, payoff_vector = u, **config)
