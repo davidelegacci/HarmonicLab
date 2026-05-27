@@ -3,3 +3,7 @@
 https://pubsonline.informs.org/doi/abs/10.1287/moor.1110.0500
 
 - Feed game in `playground.py` and run it. 
+
+
+
+For polished version see https://github.com/MOberlechner/games_decomposition
