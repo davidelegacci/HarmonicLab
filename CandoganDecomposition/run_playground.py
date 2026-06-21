@@ -26,7 +26,7 @@ import numpy as np
 import time
 import utils
 import matplotlib.pyplot as plt
-from tqdm import tqdm
+# from tqdm import tqdm
 import os
 import yaml
 
@@ -44,10 +44,10 @@ start = time.time()
 
 print('\n\n\n\n\n\n')
 
-#skeleton = [2, 2, 2]
+skeleton = [2, 2, 2]
 #skeleton = [3, 3]
 # skeleton = [2, 2]
-skeleton = [2, 2]
+# skeleton = [2, 2]
 
 # ---------------------------------
 G = ng.GameFull(skeleton, **config)
@@ -294,8 +294,15 @@ G = ng.GameFull(skeleton, **config)
 
 ## ------------------------------------------------
 # 2025-11-27 22 Eff Jv Skew
-u = [-2, -8, 3, -8, 5, 9, 1, 10]
+# u = [-2, -8, 3, -8, 5, 9, 1, 10]
 ## ------------------------------------------------
+
+## ------------------------------------------------
+## 2026-06-11 competition cooperation unif harmonic renormalized
+# u  = [1, -1, 1, -1, 0, 0, 0, 0, -1, 1, 0, 0, -1, 1, 0, 0, 0, 0, -1, 1, 1, -1, 0, 0]
+
+## 2026-06-11 competition cooperation but with minus player 3 becomes cooperation
+u = [1, -1, 1, -1, 0, 0, 0, 0, -1, 1, 0, 0, -1, 1, 0, 0, 0, 0, 1, -1, -1, 1, 0, 0]
 
 U = ng.PayoffFull(game = G, payoff_vector = u, **config)  
 # U = ng.Payoff(game = G, payoff_vector = u, **config)
