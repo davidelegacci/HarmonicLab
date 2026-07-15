@@ -769,6 +769,10 @@ adding dependencies or side effects to the core.
 CandoganDecomposition/
 |-- decomposition.py                 maintained NumPy core
 |-- __init__.py                      public numerical exports
+|-- Documentation/
+|   |-- computational_decomposition.tex implementation and complexity note
+|   |-- computational_decomposition.pdf compiled preprint
+|   `-- experiments/                 reproducible scaling benchmarks
 |-- research/
 |   |-- __init__.py                  public symbolic exports
 |   |-- symbolic.py                  exact weighted operators and bases
