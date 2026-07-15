@@ -1,6 +1,5 @@
 import math as mt
 import itertools
-import utils
 import numpy as np
 import numpy.linalg as npla
 from itertools import combinations
@@ -8,13 +7,19 @@ import matplotlib.pyplot as plt
 
 from itertools import combinations
 import networkx as nx
-import solve_linear_system as sl
 import sympy as sp
 from sympy import Matrix
 import pprint
-import metric
 import nashpy as nash
 import pandas as pd
+
+if __package__:
+    from . import metric, utils
+    from . import solve_linear_system as sl
+else:  # Preserve direct execution from this directory.
+    import metric
+    import solve_linear_system as sl
+    import utils
 
 DIAGONAL_SHIFT_0 = 1
 DIAGONAL_SHIFT_1 = 1
