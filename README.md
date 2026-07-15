@@ -1,5 +1,37 @@
 # Harmonic Lab
 
+## Plug and Play
+
+From the repository root:
+
+```python
+import numpy as np
+from CandoganDecomposition import GameGeometry
+
+skeleton = [2, 3]  # two players with 2 and 3 actions
+payoffs = np.array(
+    [
+        [[3, 0, 1], [2, 4, -1]],  # player 0
+        [[1, 2, 0], [5, -2, 3]],  # player 1
+    ],
+    dtype=float,
+)  # shape: (players, *skeleton); payoffs[i, a0, a1] = u_i(a0, a1)
+
+mu = [[1, 2], [1, 3, 2]]  # one positive weight per action; use None for uniform
+result = GameGeometry(skeleton, mu=mu).decompose(payoffs)
+
+result.nonstrategic
+result.potential
+result.harmonic
+result.potential_function
+result.potentialness
+
+assert np.allclose(
+    payoffs,
+    result.nonstrategic + result.potential + result.harmonic,
+)
+```
+
 Harmonic Lab is a research repository for finite normal-form games. It studies
 the decomposition of a game into nonstrategic, potential, and harmonic
 components, together with symbolic constructions of weighted harmonic games
