@@ -5,7 +5,7 @@ calculations. It constructs the weighted harmonic and normalization operators
 directly from Abdou's payoff-level equations, without importing the numerical
 core or converting through floating point.
 
-The older exploratory stack remains one directory above for reproducibility:
+The older exploratory stack remains under `../legacy/` for reproducibility:
 
 - `normal_game_full.py` and `normal_game_minimal_euclidean.py`;
 - `metric.py` and `solve_linear_system.py`;

@@ -58,7 +58,8 @@ SymPy is imported only when this research layer is used.
 
 ### Retained legacy research code
 
-The following files remain available for reproducing earlier experiments:
+The following files remain available under `legacy/` for reproducing earlier
+experiments:
 
 - `normal_game_full.py`;
 - `normal_game_minimal_euclidean.py`;
@@ -67,9 +68,9 @@ The following files remain available for reproducing earlier experiments:
 - the notebooks and `run_*.py` scripts.
 
 They are not imported by the maintained API. Their package-local imports were
-adjusted so that the modules remain importable through
-`CandoganDecomposition`, while direct execution from this directory remains
-possible.
+adjusted so that the principal modules remain importable through
+`CandoganDecomposition.legacy`, while direct execution from the legacy
+directory remains possible.
 
 ## Requirements
 
@@ -587,7 +588,7 @@ The old workflow typically constructed a large game class and then a payoff
 class:
 
 ```python
-import normal_game_full as ng
+from CandoganDecomposition.legacy import normal_game_full as ng
 
 game = ng.GameFull([2, 3], **config)
 payoff = ng.PayoffFull(game, payoff_vector, **config)
@@ -775,12 +776,14 @@ CandoganDecomposition/
 |-- tests/
 |   |-- test_decomposition.py        numerical and regression tests
 |   `-- test_symbolic.py             exact symbolic tests
-|-- normal_game_full.py              legacy exploratory implementation
-|-- normal_game_minimal_euclidean.py legacy uniform implementation
-|-- metric.py                        legacy generalized metric helpers
-|-- solve_linear_system.py           legacy SymPy helpers
-|-- run_*.py                         legacy experiments
-|-- *.ipynb                          legacy notebooks
+|-- legacy/
+|   |-- normal_game_full.py              exploratory implementation
+|   |-- normal_game_minimal_euclidean.py uniform implementation
+|   |-- metric.py                        generalized metric helpers
+|   |-- solve_linear_system.py           SymPy helpers
+|   |-- run_*.py                         historical experiments
+|   |-- *.ipynb                          exploratory notebooks
+|   `-- README.md                        archive status and contents
 `-- README.md                        this guide
 ```
 
